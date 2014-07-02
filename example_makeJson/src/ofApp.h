@@ -12,5 +12,5 @@ public:
     void draw();
     void keyPressed(int key);
     
-    ControlOSC controlOsc;
+    ofxControlOSC controlOsc;
 };

@@ -87,25 +87,25 @@ string Page::getJson() {
 }
 
 //--------
-Page* ControlOSC::addPage(string name) {
-    Page *newPage = new Page(name);
-    pages.push_back(newPage);
-    return newPage;
-}
-
-//--------
 void Page::addWidget(Widget widget) {
     widgets.push_back(widget);
 }
 
 //--------
-void ControlOSC::setup(string name, Orientation orientation) {
+void ofxControlOSC::setup(string name, Orientation orientation) {
     this->name = name;
     this->orientation = orientation;
 }
 
+//--------
+Page* ofxControlOSC::addPage(string name) {
+    Page *newPage = new Page(name);
+    pages.push_back(newPage);
+    return newPage;
+}
+
 //-------
-string ControlOSC::getHeader() {
+string ofxControlOSC::getHeader() {
     string header;
     for (int i=0; i<pages.size(); i++) {
         Widget pageButton;
@@ -133,7 +133,7 @@ string ControlOSC::getHeader() {
 }
 
 //-------
-string ControlOSC::getJson() {
+string ofxControlOSC::getJson() {
     string json;
     string orientationString = (orientation == PORTRAIT) ? "portrait" : "landscape";
     
@@ -154,7 +154,7 @@ string ControlOSC::getJson() {
 }
 
 //-------
-void ControlOSC::uploadToControlP5(string ipAddress) {
+void ofxControlOSC::uploadToControlP5(string ipAddress) {
     string json = getJson();
     ofxOscSender osc;
     osc.setup(ipAddress, CONTROLOSC_PORT);
@@ -165,7 +165,7 @@ void ControlOSC::uploadToControlP5(string ipAddress) {
 }
 
 //-------
-void ControlOSC::saveToFile(string path) {
+void ofxControlOSC::saveToFile(string path) {
     ofFile file(path, ofFile::WriteOnly);
     file << getJson();
     file.close();

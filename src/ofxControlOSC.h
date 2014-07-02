@@ -63,7 +63,7 @@ private:
 
 
 //-----------------------------------
-class ControlOSC
+class ofxControlOSC
 {
 public:
     void setup(string name, Orientation orientation);

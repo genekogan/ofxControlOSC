@@ -1,72 +1,104 @@
 #include "ofxControlOSC.h"
 
 //--------
-string Widget::getJson() {
+ofxControlOSCWidget::ofxControlOSCWidget(string name, float x, float y, float w, float h) {
+    this->name = name;
+    this->x = x;
+    this->y = y;
+    this->w = w;
+    this->h = h;
+    this->min = -1;
+    this->max = 1;
+    this->address = "/"+name;
+    this->fillColor = "#ccc";
+    this->strokeColor = "#aaa";
+}
+
+//--------
+string ofxControlOSCWidget::getCoreJson() {
     string json;
-    
-    if (address == "") {
-        address = "/"+name;
-    }
-    if (label == "") {
-        label = name;
-    }
-    
-    // core properties
-    json += "{\n";
     json += "\t\"name\" : \""+name+"\",\n";
+    json += "\t\"type\" : \""+type+"\",\n";
     json += "\t\"x\" : "+ofToString(x)+", \"y\" : "+ofToString(y)+",\n";
     json += "\t\"width\" : "+ofToString(w)+", \"height\" : "+ofToString(h)+",\n";
-    json += "\t\"address\"  : \""+address+"\",\n";
+    json += "\t\"address\" : \""+address+"\",\n";
     json += "\t\"min\":"+ofToString(min)+", \"max\":"+ofToString(max)+",\n";
-    json += "\t\"label\" : \""+label+"\",\n";
-    
-    // color
-    json += "\t\"color\": \"#ccc\",\n"; // check color
-    json += "\t\"stroke\": \"#aaa\",\n";
-    
-    // widget type specific properties
-    switch (type) {
-        case BUTTON:
-            json += "\t\"type\" : \"Button\",\n";
-            json += "\t\"mode\" : \"momentary\",\n";
-            break;
-            
-        case MULTIBUTTON:
-            json += "\t\"type\" : \"MultiButton\",\n";
-            json += "\t\"mode\" : \"momentary\",\n";
-            json += "\t\"rows\" : "+ofToString(nrows)+", \"columns\" : "+ofToString(ncols)+",\n";
-            break;
-            
-        case SLIDER:
-            json += "\t\"type\" : \"Slider\",\n";
-            json += isVertical ? "\t\"isVertical\": true,\n" : "\t\"isVertical\": false,\n";
-            break;
-            
-        case MULTISLIDER:
-            json += "\t\"type\" : \"MultiSlider\",\n";
-            json += "\t\"numberOfSliders\" : "+ofToString(numSliders)+",\n";
-            json += isVertical ? "\t\"isVertical\": true,\n" : "\t\"isVertical\": false,\n";
-            break;
-            
-        case PAGE_SELECT:
-            json += "\t\"type\" : \"Button\",\n";
-            json += "\t\"isLocal\" : true,\n";
-            json += "\t\"mode\" : \"contact\",\n";
-            json += "\t\"ontouchstart\": \"control.changePage("+ofToString(idxPage)+")\",\n";
-            break;
-            
-        case REFRESH:
-            json += "\t\"type\" : \"Button\",\n";
-            json += "\t\"isLocal\" : true,\n";
-            json += "\t\"startingValue\" : 0,\n";
-            json += "\t\"mode\" : \"contact\",\n";
-            json += "\t\"ontouchstart\": \"interfaceManager.refreshInterface()\",\n";
-            json += "\t\"label\" : \"refresh\",\n";
-            break;
-            
-        default:
-            break;
+    json += "\t\"color\" : \""+fillColor+"\",\n";
+    json += "\t\"stroke\" : \""+strokeColor+"\",\n";
+    return json;
+}
+
+//--------
+string ofxControlOSCButton::getJson() {
+    string json;
+    json += "{\n";
+    json += getCoreJson();
+    if (mode == MOMENTARY) {
+        json += "\t\"mode\" : \"momentary\",\n";
+    } else if (mode == TOGGLE) {
+        json += "\t\"mode\" : \"toggle\",\n";
     }
+    json += "\t\"label\" : \""+label+"\",\n";
+    json += "}";
+    return json;
+}
+
+//--------
+string ofxControlOSCMultiButton::getJson() {
+    string json;
+    json += "{\n";
+    json += getCoreJson();
+    if (mode == MOMENTARY) {
+        json += "\t\"mode\" : \"momentary\",\n";
+    } else if (mode == TOGGLE) {
+        json += "\t\"mode\" : \"toggle\",\n";
+    }
+    json += "\t\"label\" : \""+label+"\",\n";
+    json += "\t\"rows\" : "+ofToString(rows)+", \"columns\" : "+ofToString(cols)+",\n";
+    json += "}";
+    return json;
+}
+
+//--------
+string ofxControlOSCSlider::getJson() {
+    string json;
+    json += "{\n";
+    json += getCoreJson();
+    json += isVertical ? "\t\"isVertical\": true,\n" : "\t\"isVertical\": false,\n";
+    json += "}";
+    return json;
+}
+
+//--------
+string ofxControlOSCMultiSlider::getJson() {
+    string json;
+    json += "{\n";
+    json += getCoreJson();
+    json += isVertical ? "\t\"isVertical\": true,\n" : "\t\"isVertical\": false,\n";
+    json += "\t\"numberOfSliders\" : "+ofToString(numSliders)+",\n";
+    json += "}";
+    return json;
+}
+
+//--------
+string ofxControlOSCKnob::getJson() {
+    string json;
+    json += "{\n";
+    json += getCoreJson();
+    json += "\t\"radius\" : "+ofToString(radius)+",\n";
+    json += centerZero ? "\t\"centerZero\": true,\n" : "\t\"centerZero\": false,\n";
+    json += usesRotation ? "\t\"usesRotation\": true,\n" : "\t\"usesRotation\": false,\n";
+    json += "}";
+    return json;
+}
+
+//--------
+string ofxControlOSCMultiTouchXY::getJson() {
+    string json;
+    json += "{\n";
+    json += getCoreJson();
+    json += "\t\"maxTouches\" : "+ofToString(maxTouches)+",\n";
+    json += isMomentary ? "\t\"isMomentary\" : true,\n" : "\t\"isMomentary\" : false,\n";
     json += "}";
     return json;
 }
@@ -77,19 +109,96 @@ Page::Page(string name) {
 }
 
 //--------
+ofxControlOSCButton * Page::addButton(string name, float x, float y, float w, float h) {
+    ofxControlOSCButton *button = new ofxControlOSCButton(name, x, y, w, h);
+    button->setLabel(button->getName());
+    button->setMode(MOMENTARY);
+    widgets.push_back(button);
+    return button;
+}
+
+//--------
+ofxControlOSCMultiButton * Page::addMultiButton(string name, float x, float y, float w, float h, int rows, int cols) {
+    ofxControlOSCMultiButton *multiButton = new ofxControlOSCMultiButton(name, x, y, w, h);
+    multiButton->setLabel(multiButton->getName());
+    multiButton->setMode(MOMENTARY);
+    multiButton->setRows(rows);
+    multiButton->setCols(cols);
+    widgets.push_back(multiButton);
+    return multiButton;
+}
+
+//--------
+ofxControlOSCButton * Page::addToggle(string name, float x, float y, float w, float h) {
+    ofxControlOSCButton *toggle = new ofxControlOSCButton(name, x, y, w, h);
+    toggle->setLabel(toggle->getName());
+    toggle->setMode(TOGGLE);
+    widgets.push_back(toggle);
+    return toggle;
+}
+
+//--------
+ofxControlOSCMultiButton * Page::addMultiToggle(string name, float x, float y, float w, float h, int rows, int cols) {
+    ofxControlOSCMultiButton *multiToggle = new ofxControlOSCMultiButton(name, x, y, w, h);
+    multiToggle->setLabel(multiToggle->getName());
+    multiToggle->setMode(TOGGLE);
+    multiToggle->setRows(rows);
+    multiToggle->setCols(cols);
+    widgets.push_back(multiToggle);
+    return multiToggle;
+}
+
+//--------
+ofxControlOSCSlider * Page::addSlider(string name, float x, float y, float w, float h) {
+    ofxControlOSCSlider *slider = new ofxControlOSCSlider(name, x, y, w, h);
+    if (h > w) {
+        slider->setIsVertical(true);
+    } else {
+        slider->setIsVertical(false);
+    }
+    widgets.push_back(slider);
+    return slider;
+}
+
+//--------
+ofxControlOSCMultiSlider * Page::addMultiSlider(string name, float x, float y, float w, float h, int numSliders) {
+    ofxControlOSCMultiSlider *multiSlider = new ofxControlOSCMultiSlider(name, x, y, w, h);
+    if (h > w/numSliders) {
+        multiSlider->setIsVertical(true);
+    } else {
+        multiSlider->setIsVertical(false);
+    }
+    multiSlider->setNumSliders(numSliders);
+    widgets.push_back(multiSlider);
+    return multiSlider;
+}
+
+//--------
+ofxControlOSCKnob * Page::addKnob(string name, float x, float y, float rad) {
+    ofxControlOSCKnob *knob = new ofxControlOSCKnob(name, x, y, rad);
+    knob->setRadius(rad);
+    widgets.push_back(knob);
+    return knob;
+}
+
+//--------
+ofxControlOSCMultiTouchXY * Page::addMultiTouchXY(string name, float x, float y, float w, float h, int maxTouches) {
+    ofxControlOSCMultiTouchXY *multiTouch = new ofxControlOSCMultiTouchXY(name, x, y, w, h);
+    multiTouch->setMaxTouches(maxTouches);
+    widgets.push_back(multiTouch);
+    return multiTouch;
+}
+
+//--------
 string Page::getJson() {
     string pageJson;
     for (int i=0; i<widgets.size(); i++) {
         if (i>0) pageJson += ",\n";
-        pageJson += widgets[i].getJson();
+        pageJson += widgets[i]->getJson();
     }
     return pageJson;
 }
 
-//--------
-void Page::addWidget(Widget widget) {
-    widgets.push_back(widget);
-}
 
 //--------
 void ofxControlOSC::setup(string name, Orientation orientation) {
@@ -104,33 +213,6 @@ Page* ofxControlOSC::addPage(string name) {
     return newPage;
 }
 
-//-------
-string ofxControlOSC::getHeader() {
-    string header;
-    for (int i=0; i<pages.size(); i++) {
-        Widget pageButton;
-        pageButton.type = PAGE_SELECT;
-        pageButton.name = "p"+ofToString(i);
-        pageButton.idxPage = i;
-        pageButton.x = 0.16*i;
-        pageButton.y = 0.0;
-        pageButton.w = 0.12;
-        pageButton.h = 0.1;
-        pageButton.label = pages[i]->getName();
-        header += pageButton.getJson() + ",";
-    }
-    
-    Widget refresh;
-    refresh.type = REFRESH;
-    refresh.name = "refresh";
-    refresh.x = 0.85;
-    refresh.y = 0.0;
-    refresh.w = 0.14;
-    refresh.h = 0.1;
-    
-    header += refresh.getJson();
-    return header;
-}
 
 //-------
 string ofxControlOSC::getJson() {
@@ -140,28 +222,16 @@ string ofxControlOSC::getJson() {
     json +=  "loadedInterfaceName = \""+name+"\";\n";
     json += "interfaceOrientation = \""+orientationString+"\";\n";
     json += "pages = [\n";
+    
     for (int p=0; p<pages.size(); p++) {
         if (p>0) json += ",\n";
         json += "[";
-        if (pages.size() > 1) {
-            json += getHeader() + ",";
-        }
         json += pages[p]->getJson();
         json += "]";
     }
+    
     json += "];";
     return json;
-}
-
-//-------
-void ofxControlOSC::uploadToControlP5(string ipAddress) {
-    string json = getJson();
-    ofxOscSender osc;
-    osc.setup(ipAddress, CONTROLOSC_PORT);
-    ofxOscMessage m;
-    m.setAddress("/pushInterface");
-    m.addStringArg(json);
-    osc.sendMessage(m);    
 }
 
 //-------

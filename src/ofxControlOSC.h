@@ -2,11 +2,11 @@
 
 #include "ofMain.h"
 
-
 enum ControlButtonMode { MOMENTARY, TOGGLE };
 enum Orientation { PORTRAIT, LANDSCAPE };
 
 
+//--------
 class ofxControlOSCWidget
 {
 public:
@@ -45,20 +45,36 @@ protected:
 };
 
 
+//--------
+class ofxControlOSCLabel : public ofxControlOSCWidget
+{
+public:
+    ofxControlOSCLabel(string name, float x, float y, float w, float h)
+        : ofxControlOSCWidget(name, x, y, w, h) { type = "Label"; };
+    
+    void setVerticalCenter(bool verticalCenter) { this->verticalCenter = verticalCenter; }
+    bool getVerticalCenter() { return verticalCenter; }
+    
+    string getJson();
+    
+protected:
+    bool verticalCenter;
+};
 
 
-
+//--------
 class ofxControlOSCButton : public ofxControlOSCWidget
 {
 public:
     ofxControlOSCButton(string name, float x, float y, float w, float h)
-    : ofxControlOSCWidget(name, x, y, w, h) { type = "Button"; };
+        : ofxControlOSCWidget(name, x, y, w, h) { type = "Button"; };
     
     void setLabel(string label) { this->label = label; }
     void setMode(ControlButtonMode mode) { this->mode = mode; }
     
     string getLabel() { return label; }
     ControlButtonMode getMode() { return mode; }
+    
     string getJson();
     
 protected:
@@ -67,15 +83,16 @@ protected:
 };
 
 
-
+//--------
 class ofxControlOSCMultiButton : public ofxControlOSCButton
 {
 public:
     ofxControlOSCMultiButton(string name, float x, float y, float w, float h)
-    : ofxControlOSCButton(name, x, y, w, h) { type = "MultiButton"; };
+        : ofxControlOSCButton(name, x, y, w, h) { type = "MultiButton"; };
     
     void setRows(int rows) { this->rows = rows; }
     void setCols(int cols) { this->cols = cols; }
+    
     int getRows() { return rows; }
     int getCols() { return cols; }
     
@@ -86,18 +103,16 @@ protected:
 };
 
 
-
-
-
-
+//--------
 class ofxControlOSCSlider : public ofxControlOSCWidget
 {
 public:
     ofxControlOSCSlider(string name, float x, float y, float w, float h)
-    : ofxControlOSCWidget(name, x, y, w, h) { type = "Slider"; };
+        : ofxControlOSCWidget(name, x, y, w, h) { type = "Slider"; };
     
     void setIsVertical(bool isVertical) { this->isVertical = isVertical; }
     bool getIsVertical() { return isVertical; }
+    
     string getJson();
     
 protected:
@@ -105,12 +120,12 @@ protected:
 };
 
 
-
+//--------
 class ofxControlOSCMultiSlider : public ofxControlOSCSlider
 {
 public:
     ofxControlOSCMultiSlider(string name, float x, float y, float w, float h)
-    : ofxControlOSCSlider(name, x, y, w, h) { type = "MultiSlider"; };
+        : ofxControlOSCSlider(name, x, y, w, h) { type = "MultiSlider"; };
     
     void setNumSliders(int numSliders) { this->numSliders = numSliders; }
     int getNumSliders() { return numSliders; }
@@ -122,12 +137,12 @@ protected:
 };
 
 
-
+//--------
 class ofxControlOSCKnob : public ofxControlOSCWidget
 {
 public:
     ofxControlOSCKnob(string name, float x, float y, float rad)
-    : ofxControlOSCWidget(name, x, y, 0.1, 0.1) { type = "Knob"; };
+        : ofxControlOSCWidget(name, x, y, 0.1, 0.1) { type = "Knob"; };
     
     void setRadius(float radius) { this->radius = radius; }
     void setCenterZero(bool centerZero) { this->centerZero = centerZero; }
@@ -144,17 +159,20 @@ protected:
     bool centerZero, usesRotation;
 };
 
+
+//--------
 class ofxControlOSCMultiTouchXY : public ofxControlOSCWidget
 {
 public:
     ofxControlOSCMultiTouchXY(string name, float x, float y, float w, float h)
-    : ofxControlOSCWidget(name, x, y, w, h) { type = "MultiTouchXY"; };
+        : ofxControlOSCWidget(name, x, y, w, h) { type = "MultiTouchXY"; };
     
     void setMaxTouches(int maxTouches) { this->maxTouches = maxTouches; }
     void setIsMomentary(bool isMomentary) { this->isMomentary = isMomentary; }
     
     int getMaxTouches() { return maxTouches; }
     bool getIsMomentary() { return isMomentary; }
+    
     string getJson();
     
 protected:
@@ -163,13 +181,14 @@ protected:
 };
 
 
-
-//-----------------------------------
+//--------
 class Page
 {
 public:
     Page(string name);
+    string getName() { return name; }
     
+    ofxControlOSCLabel * addLabel(string name, float x, float y, float w, float h);
     ofxControlOSCButton * addButton(string name, float x, float y, float w, float h);
     ofxControlOSCMultiButton * addMultiButton(string name, float x, float y, float w, float h, int rows, int cols);
     ofxControlOSCButton * addToggle(string name, float x, float y, float w, float h);
@@ -179,15 +198,15 @@ public:
     ofxControlOSCKnob * addKnob(string name, float x, float y, float rad);
     ofxControlOSCMultiTouchXY * addMultiTouchXY(string name, float x, float y, float w, float h, int maxTouches);
 
-    string getName() { return name; }
     string getJson();
-private:
+
+protected:
     vector<ofxControlOSCWidget *> widgets;
     string name;
 };
 
 
-//-----------------------------------
+//--------
 class ofxControlOSC
 {
 public:
@@ -195,7 +214,8 @@ public:
     Page* addPage(string name);
     string getJson();
     void saveToFile(string path);
-private:
+    
+protected:
     vector<Page *> pages;
     string name;
     Orientation orientation;

@@ -18,9 +18,11 @@ void ofApp::setup(){
     ofxControlOSCSlider *slider = page->addSlider("mySlider", 0.5, 0.1, 0.4, 0.1);
     slider->setAddress("/myCustomAddress");
     slider->setColors("#0f0", "#f00");
-    
+    slider->setMin(0);
+    slider->setMax(10);
     
     string json = controlOsc.getJson();
+    
     cout << json << endl;
     
     // The string json contains the interface. There are two ways to
@@ -29,7 +31,6 @@ void ofApp::setup(){
     // inside the ControlOSC application.
     // Save it using controlOsc.save(PATH_TO_YOUR_FILE) or output
     // the json string manually using controlOsc.getJson()
-
     
     
     // The second way is to push the json directly to your phone over OSC.
@@ -40,7 +41,7 @@ void ofApp::setup(){
     // to crash sometimes depending on the features added. So if it doesn't
     // work, you should use the above manual way
     
-    string ipAddress = "192.168.1.105";    // <-- change to your phone's IP
+    string ipAddress = "192.168.1.86";    // <-- change to your phone's IP
     ofxOscSender osc;
     ofxOscMessage m;
     m.setAddress("/pushInterface");

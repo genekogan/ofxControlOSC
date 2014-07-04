@@ -10,6 +10,6 @@ See the example for usage details.
 
 
 ### To-do / feature requests
- - Add support for missing widgets.
+ - Add support for accelerometer, gyro, any other missing widget.
  - Convert an ofxUICanvas to a ControlOSC interface, and communicate between them automatically via osc.
  - Generate positioning details of widgets automatically. 

@@ -29,6 +29,16 @@ string ofxControlOSCWidget::getCoreJson() {
 }
 
 //--------
+string ofxControlOSCLabel::getJson() {
+    string json;
+    json += "{\n";
+    json += getCoreJson();
+    json += "\t\"value\" : \""+name+"\",\n";
+    json += verticalCenter ? "\t\"verticalCenter\" : true,\n" : "\t\"verticalCenter\" : false,\n";
+    json += "}";
+    return json;
+}
+//--------
 string ofxControlOSCButton::getJson() {
     string json;
     json += "{\n";
@@ -109,10 +119,19 @@ Page::Page(string name) {
 }
 
 //--------
+ofxControlOSCLabel * Page::addLabel(string name, float x, float y, float w, float h) {
+    ofxControlOSCLabel *label = new ofxControlOSCLabel(name, x, y, w, h);
+    label->setAddress("/"+getName()+"/"+label->getName());
+    widgets.push_back(label);
+    return label;
+}
+
+//--------
 ofxControlOSCButton * Page::addButton(string name, float x, float y, float w, float h) {
     ofxControlOSCButton *button = new ofxControlOSCButton(name, x, y, w, h);
     button->setLabel(button->getName());
     button->setMode(MOMENTARY);
+    button->setAddress("/"+getName()+"/"+button->getName());
     widgets.push_back(button);
     return button;
 }
@@ -124,6 +143,7 @@ ofxControlOSCMultiButton * Page::addMultiButton(string name, float x, float y, f
     multiButton->setMode(MOMENTARY);
     multiButton->setRows(rows);
     multiButton->setCols(cols);
+    multiButton->setAddress("/"+getName()+"/"+multiButton->getName());
     widgets.push_back(multiButton);
     return multiButton;
 }
@@ -133,6 +153,7 @@ ofxControlOSCButton * Page::addToggle(string name, float x, float y, float w, fl
     ofxControlOSCButton *toggle = new ofxControlOSCButton(name, x, y, w, h);
     toggle->setLabel(toggle->getName());
     toggle->setMode(TOGGLE);
+    toggle->setAddress("/"+getName()+"/"+toggle->getName());
     widgets.push_back(toggle);
     return toggle;
 }
@@ -144,6 +165,7 @@ ofxControlOSCMultiButton * Page::addMultiToggle(string name, float x, float y, f
     multiToggle->setMode(TOGGLE);
     multiToggle->setRows(rows);
     multiToggle->setCols(cols);
+    multiToggle->setAddress("/"+getName()+"/"+multiToggle->getName());
     widgets.push_back(multiToggle);
     return multiToggle;
 }
@@ -156,6 +178,7 @@ ofxControlOSCSlider * Page::addSlider(string name, float x, float y, float w, fl
     } else {
         slider->setIsVertical(false);
     }
+    slider->setAddress("/"+getName()+"/"+slider->getName());
     widgets.push_back(slider);
     return slider;
 }
@@ -169,6 +192,7 @@ ofxControlOSCMultiSlider * Page::addMultiSlider(string name, float x, float y, f
         multiSlider->setIsVertical(false);
     }
     multiSlider->setNumSliders(numSliders);
+    multiSlider->setAddress("/"+getName()+"/"+multiSlider->getName());
     widgets.push_back(multiSlider);
     return multiSlider;
 }
@@ -177,6 +201,7 @@ ofxControlOSCMultiSlider * Page::addMultiSlider(string name, float x, float y, f
 ofxControlOSCKnob * Page::addKnob(string name, float x, float y, float rad) {
     ofxControlOSCKnob *knob = new ofxControlOSCKnob(name, x, y, rad);
     knob->setRadius(rad);
+    knob->setAddress("/"+getName()+"/"+knob->getName());
     widgets.push_back(knob);
     return knob;
 }
@@ -185,6 +210,7 @@ ofxControlOSCKnob * Page::addKnob(string name, float x, float y, float rad) {
 ofxControlOSCMultiTouchXY * Page::addMultiTouchXY(string name, float x, float y, float w, float h, int maxTouches) {
     ofxControlOSCMultiTouchXY *multiTouch = new ofxControlOSCMultiTouchXY(name, x, y, w, h);
     multiTouch->setMaxTouches(maxTouches);
+    multiTouch->setAddress("/"+getName()+"/"+multiTouch->getName());
     widgets.push_back(multiTouch);
     return multiTouch;
 }
@@ -199,7 +225,6 @@ string Page::getJson() {
     return pageJson;
 }
 
-
 //--------
 void ofxControlOSC::setup(string name, Orientation orientation) {
     this->name = name;
@@ -212,7 +237,6 @@ Page* ofxControlOSC::addPage(string name) {
     pages.push_back(newPage);
     return newPage;
 }
-
 
 //-------
 string ofxControlOSC::getJson() {

@@ -1,2 +1,2 @@
-ofxOsc
 ofxControlOSC
+ofxOsc
